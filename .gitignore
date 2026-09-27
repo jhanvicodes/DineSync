@@ -1,0 +1,25 @@
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Maven build output
+target/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+.factorypath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

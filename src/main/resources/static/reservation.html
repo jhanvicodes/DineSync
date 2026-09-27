@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserve a Table — DineSync</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/reservation.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="nav-logo">Dine<span>Sync</span></a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/restaurants.html">Restaurants</a></li>
+      <li><a href="/my-reservations.html" id="nav-my-reservations" style="display:none;">My Reservations</a></li>
+    </ul>
+    <div class="nav-actions">
+      <span id="nav-username" style="font-size:0.88rem; font-weight:600; color:var(--text-muted);"></span>
+      <a href="/profile.html" id="nav-profile" class="btn btn-ghost btn-sm" style="display:none;">Profile</a>
+      <a href="/login.html" id="nav-login" class="btn btn-ghost btn-sm">Log In</a>
+      <a href="/signup.html" id="nav-signup" class="btn btn-primary btn-sm">Sign Up</a>
+      <button id="nav-logout" class="btn btn-outline btn-sm" style="display:none;" onclick="logout()">Log Out</button>
+    </div>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="/">Home</a>
+      <span class="breadcrumb-sep">/</span>
+      <a href="/restaurants.html">Restaurants</a>
+      <span class="breadcrumb-sep">/</span>
+      <span id="page-restaurant-name">Reserve</span>
+    </div>
+    <h1>Reserve Your Table</h1>
+    <p>Select your preferred date, time, and table</p>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="reservation-page">
+  <div class="container">
+    <div class="reservation-layout">
+
+      <!-- LEFT: Form + Tables -->
+      <div>
+        <!-- Step 1: Date/Time/Guests -->
+        <div class="res-form-card">
+          <h2>1. Choose Date, Time &amp; Guests</h2>
+          <div class="res-form-grid">
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="res-date">📅 Date</label>
+              <input type="date" id="res-date" class="form-control">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="res-time">🕐 Time</label>
+              <select id="res-time" class="form-control">
+                <option value="11:30">11:30 AM</option>
+                <option value="12:00">12:00 PM</option>
+                <option value="12:30">12:30 PM</option>
+                <option value="13:00">1:00 PM</option>
+                <option value="13:30">1:30 PM</option>
+                <option value="14:00">2:00 PM</option>
+                <option value="18:00">6:00 PM</option>
+                <option value="18:30">6:30 PM</option>
+                <option value="19:00" selected>7:00 PM</option>
+                <option value="19:30">7:30 PM</option>
+                <option value="20:00">8:00 PM</option>
+                <option value="20:30">8:30 PM</option>
+                <option value="21:00">9:00 PM</option>
+                <option value="21:30">9:30 PM</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="res-guests">👥 Guests</label>
+              <select id="res-guests" class="form-control">
+                <option value="1">1 Guest</option>
+                <option value="2" selected>2 Guests</option>
+                <option value="3">3 Guests</option>
+                <option value="4">4 Guests</option>
+                <option value="5">5 Guests</option>
+                <option value="6">6 Guests</option>
+                <option value="7">7 Guests</option>
+                <option value="8">8 Guests</option>
+                <option value="10">10 Guests</option>
+              </select>
+            </div>
+          </div>
+          <button id="search-tables-btn" class="btn btn-primary btn-lg" style="width:100%;">
+            🔍 Check Availability
+          </button>
+        </div>
+
+        <!-- Step 2: Table Selection -->
+        <div id="tables-section" style="display:none;">
+          <div class="tables-section">
+            <h2>2. Select Your Table</h2>
+            <p class="text-muted" style="font-size:0.88rem; margin-bottom:var(--space-md);">
+              Click a table to select it. Tables are reserved for 2 hours.
+            </p>
+
+            <div class="tables-legend">
+              <div class="legend-item">
+                <div class="legend-dot available"></div>
+                <span>Available</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot selected"></div>
+                <span>Selected</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot unavailable"></div>
+                <span>Unavailable</span>
+              </div>
+            </div>
+
+            <div id="tables-container">
+              <!-- Tables rendered by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Summary Sidebar -->
+      <div>
+        <div class="res-summary-card">
+          <h3>Reservation Summary</h3>
+
+          <div class="res-restaurant-name" id="res-restaurant-name">Loading restaurant...</div>
+          <div class="res-restaurant-location text-muted" id="res-restaurant-location" style="font-size:0.85rem; margin-bottom:var(--space-lg);"></div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-row">
+            <span class="summary-row-label">📅 Date</span>
+            <span class="summary-row-value" id="summary-date">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-row-label">🕐 Time</span>
+            <span class="summary-row-value" id="summary-time">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-row-label">👥 Guests</span>
+            <span class="summary-row-value" id="summary-guests">—</span>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div style="margin-bottom:var(--space-md);">
+            <div style="font-size:0.78rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); margin-bottom:var(--space-sm);">Selected Table</div>
+            <div id="summary-table">
+              <p class="text-muted" style="font-size:0.85rem; font-style:italic;">Select a table from the availability results</p>
+            </div>
+          </div>
+
+          <button id="confirm-btn" class="btn btn-primary btn-full btn-lg" disabled>
+            Select a Table First
+          </button>
+
+          <p style="font-size:0.75rem; text-align:center; color:var(--text-muted); margin-top:var(--space-md);">
+            Free cancellation up to 2 hours before your reservation
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script src="/js/reservation.js"></script>
+</body>
+</html>

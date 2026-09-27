@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Restaurants — DineSync Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-logo">
+      <div class="admin-logo-text">Dine<span>Sync</span></div>
+      <div class="admin-logo-sub">Admin Panel</div>
+    </div>
+
+    <nav class="admin-nav">
+      <div class="admin-nav-section">Main</div>
+      <a href="/admin/dashboard.html" class="admin-nav-link">
+        <span class="admin-nav-icon">📊</span> Dashboard
+      </a>
+      <a href="/admin/reservations.html" class="admin-nav-link">
+        <span class="admin-nav-icon">📅</span> Reservations
+      </a>
+      <a href="/admin/customers.html" class="admin-nav-link">
+        <span class="admin-nav-icon">👥</span> Customers
+      </a>
+
+      <div class="admin-nav-section">Manage</div>
+      <a href="/admin/restaurants.html" class="admin-nav-link active">
+        <span class="admin-nav-icon">🍽️</span> Restaurants
+      </a>
+      <a href="/admin/tables.html" class="admin-nav-link">
+        <span class="admin-nav-icon">🪑</span> Tables
+      </a>
+      <a href="/admin/menu.html" class="admin-nav-link">
+        <span class="admin-nav-icon">📋</span> Menu
+      </a>
+
+      <div class="admin-nav-section">Account</div>
+      <a href="/" class="admin-nav-link">
+        <span class="admin-nav-icon">🏠</span> Go to Site
+      </a>
+      <a href="#" class="admin-nav-link" onclick="logout()">
+        <span class="admin-nav-icon">🚪</span> Log Out
+      </a>
+    </nav>
+
+    <div class="admin-sidebar-footer">
+      <div class="admin-user-info">
+        <div class="admin-avatar" id="admin-avatar">A</div>
+        <div>
+          <div class="admin-user-name" id="admin-user-name">Admin</div>
+          <div class="admin-user-role">Administrator</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <button class="admin-hamburger" aria-label="Menu">☰</button>
+      </div>
+      <div class="admin-topbar-title">
+        <h1>Restaurants</h1>
+        <p>Add, update, or remove restaurant listings</p>
+      </div>
+      <div class="admin-topbar-actions">
+        <button class="btn btn-primary btn-sm" onclick="openAddRestaurant()">+ Add Restaurant</button>
+        <a href="/restaurants.html" class="btn btn-outline btn-sm">View Site</a>
+      </div>
+    </div>
+
+    <div class="admin-content">
+      <div class="admin-section">
+        <div class="admin-section-header">
+          <h3>All Restaurants</h3>
+          <button class="btn btn-primary btn-sm" onclick="openAddRestaurant()">+ Add Restaurant</button>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Restaurant</th>
+                <th>Cuisine</th>
+                <th>Location</th>
+                <th>Price</th>
+                <th>Rating</th>
+                <th>Hours</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="restaurants-table-body">
+              <tr><td colspan="7" class="text-center text-muted" style="padding:24px;">Loading restaurants...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<!-- RESTAURANT MODAL (Add/Edit) -->
+<div class="modal-overlay" id="restaurant-modal">
+  <div class="modal" style="max-width: 600px;">
+    <div class="modal-header">
+      <h3 id="restaurant-modal-title">Add Restaurant</h3>
+      <button class="modal-close" onclick="closeRestaurantModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="r-id">
+      
+      <div class="form-group">
+        <label for="r-name">Restaurant Name *</label>
+        <input type="text" id="r-name" class="form-control" placeholder="e.g. Saffron House" required>
+      </div>
+
+      <div class="form-group">
+        <label for="r-description">Description</label>
+        <textarea id="r-description" class="form-control" rows="3" placeholder="Tell guests about the ambiance and specialties..."></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+        <div class="form-group">
+          <label for="r-cuisine">Cuisine *</label>
+          <input type="text" id="r-cuisine" class="form-control" placeholder="e.g. Mediterranean" required>
+        </div>
+        <div class="form-group">
+          <label for="r-location">Location *</label>
+          <input type="text" id="r-location" class="form-control" placeholder="e.g. Downtown, Mumbai" required>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+        <div class="form-group">
+          <label for="r-price">Price Range</label>
+          <select id="r-price" class="form-control">
+            <option value="$">$ (Budget)</option>
+            <option value="$$" selected>$$ (Moderate)</option>
+            <option value="$$$">$$$ (Upscale)</option>
+            <option value="$$$$">$$$$ (Fine Dining)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="r-phone">Phone</label>
+          <input type="text" id="r-phone" class="form-control" placeholder="+91-22-4001-1111">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+        <div class="form-group">
+          <label for="r-opening">Opening Time (HH:MM)</label>
+          <input type="time" id="r-opening" class="form-control" value="11:30">
+        </div>
+        <div class="form-group">
+          <label for="r-closing">Closing Time (HH:MM)</label>
+          <input type="time" id="r-closing" class="form-control" value="23:00">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="r-image">Image URL</label>
+        <input type="url" id="r-image" class="form-control" placeholder="https://images.unsplash.com/...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeRestaurantModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRestaurant()">Save Restaurant</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

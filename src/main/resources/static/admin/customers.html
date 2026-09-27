@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customers — DineSync Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-logo">
+      <div class="admin-logo-text">Dine<span>Sync</span></div>
+      <div class="admin-logo-sub">Admin Panel</div>
+    </div>
+
+    <nav class="admin-nav">
+      <div class="admin-nav-section">Main</div>
+      <a href="/admin/dashboard.html" class="admin-nav-link">
+        <span class="admin-nav-icon">📊</span> Dashboard
+      </a>
+      <a href="/admin/reservations.html" class="admin-nav-link">
+        <span class="admin-nav-icon">📅</span> Reservations
+      </a>
+      <a href="/admin/customers.html" class="admin-nav-link active">
+        <span class="admin-nav-icon">👥</span> Customers
+      </a>
+
+      <div class="admin-nav-section">Manage</div>
+      <a href="/admin/restaurants.html" class="admin-nav-link">
+        <span class="admin-nav-icon">🍽️</span> Restaurants
+      </a>
+      <a href="/admin/tables.html" class="admin-nav-link">
+        <span class="admin-nav-icon">🪑</span> Tables
+      </a>
+      <a href="/admin/menu.html" class="admin-nav-link">
+        <span class="admin-nav-icon">📋</span> Menu
+      </a>
+
+      <div class="admin-nav-section">Account</div>
+      <a href="/" class="admin-nav-link">
+        <span class="admin-nav-icon">🏠</span> Go to Site
+      </a>
+      <a href="#" class="admin-nav-link" onclick="logout()">
+        <span class="admin-nav-icon">🚪</span> Log Out
+      </a>
+    </nav>
+
+    <div class="admin-sidebar-footer">
+      <div class="admin-user-info">
+        <div class="admin-avatar" id="admin-avatar">A</div>
+        <div>
+          <div class="admin-user-name" id="admin-user-name">Admin</div>
+          <div class="admin-user-role">Administrator</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <button class="admin-hamburger" aria-label="Menu">☰</button>
+      </div>
+      <div class="admin-topbar-title">
+        <h1>Registered Customers</h1>
+        <p>View registered customer profiles and account details</p>
+      </div>
+      <div class="admin-topbar-actions">
+        <a href="/restaurants.html" class="btn btn-outline btn-sm">View Site</a>
+      </div>
+    </div>
+
+    <div class="admin-content">
+      <div class="admin-section">
+        <div class="admin-section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h3>Customer Directory</h3>
+            <p class="text-muted" style="font-size: 0.85rem;">Passwords and confidential data are never exposed</p>
+          </div>
+          <div style="min-width: 250px;">
+            <input type="text" id="customer-search" class="form-control" placeholder="Search by name, email...">
+          </div>
+        </div>
+
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Email Address</th>
+                <th>Phone</th>
+                <th>Member Since</th>
+              </tr>
+            </thead>
+            <tbody id="customers-tbody">
+              <tr><td colspan="4" class="text-center text-muted" style="padding:32px;">Loading customer directory...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<script src="/js/main.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

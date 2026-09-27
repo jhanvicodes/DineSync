@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurants — DineSync</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="nav-logo">Dine<span>Sync</span></a>
+
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/restaurants.html" class="active">Restaurants</a></li>
+      <li><a href="/my-reservations.html" id="nav-my-reservations" style="display:none;">My Reservations</a></li>
+      <li><a href="/admin/dashboard.html" id="nav-admin" style="display:none;">Admin</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <span id="nav-username" style="font-size:0.88rem; font-weight:600; color:var(--text-muted);"></span>
+      <a href="/profile.html" id="nav-profile" class="btn btn-ghost btn-sm" style="display:none;">Profile</a>
+      <a href="/login.html" id="nav-login" class="btn btn-ghost btn-sm">Log In</a>
+      <a href="/signup.html" id="nav-signup" class="btn btn-primary btn-sm">Sign Up</a>
+      <button id="nav-logout" class="btn btn-outline btn-sm" style="display:none;" onclick="logout()">Log Out</button>
+    </div>
+
+    <button class="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="/">Home</a>
+      <span class="breadcrumb-sep">/</span>
+      <span>Restaurants</span>
+    </div>
+    <h1>Explore Restaurants</h1>
+    <p>Discover premier dining destinations, curated menus, and reserve your table instantly</p>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="container" style="margin-top: -24px; position: relative; z-index: 10;">
+  <div class="search-widget" style="box-shadow: var(--shadow-lg); background: var(--white); border-radius: var(--radius-lg); padding: var(--space-lg); border: 1px solid var(--border-light);">
+    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto auto; gap: var(--space-md); align-items: end;">
+      <div class="search-field">
+        <label for="search-query">Search</label>
+        <input type="text" id="search-query" placeholder="Name, cuisine, or area...">
+      </div>
+      <div class="search-field">
+        <label for="filter-cuisine">Cuisine</label>
+        <select id="filter-cuisine">
+          <option value="">All Cuisines</option>
+        </select>
+      </div>
+      <div class="search-field">
+        <label for="filter-location">Location</label>
+        <select id="filter-location">
+          <option value="">All Locations</option>
+        </select>
+      </div>
+      <div class="search-field">
+        <label for="filter-price">Price</label>
+        <select id="filter-price">
+          <option value="">All Prices</option>
+          <option value="$">$ (Inexpensive)</option>
+          <option value="$$">$$ (Moderate)</option>
+          <option value="$$$">$$$ (Upscale)</option>
+          <option value="$$$$">$$$$ (Fine Dining)</option>
+        </select>
+      </div>
+      <div>
+        <button id="search-btn" class="btn btn-primary" style="height: 44px; padding: 0 20px;">
+          Filter
+        </button>
+      </div>
+      <div>
+        <button id="reset-btn" class="btn btn-outline" style="height: 44px; padding: 0 16px;">
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESTAURANT LISTING SECTION -->
+<section class="section">
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg);">
+      <div id="result-count" style="font-size: 0.95rem; font-weight: 600; color: var(--text-muted);">
+        Loading restaurants...
+      </div>
+    </div>
+
+    <!-- Restaurants Container -->
+    <div id="restaurants-container">
+      <div class="spinner-overlay">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">Dine<span>Sync</span></div>
+        <p class="footer-tagline">The modern way to discover and reserve tables at exceptional restaurants.</p>
+      </div>
+      <div>
+        <div class="footer-heading">Explore</div>
+        <ul class="footer-links">
+          <li><a href="/restaurants.html">Restaurants</a></li>
+          <li><a href="/restaurants.html?cuisine=Mediterranean">Mediterranean</a></li>
+          <li><a href="/restaurants.html?cuisine=Asian+Fusion">Asian Fusion</a></li>
+          <li><a href="/restaurants.html?cuisine=Contemporary">Contemporary</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-heading">Account</div>
+        <ul class="footer-links">
+          <li><a href="/signup.html">Sign Up</a></li>
+          <li><a href="/login.html">Log In</a></li>
+          <li><a href="/my-reservations.html">My Reservations</a></li>
+          <li><a href="/profile.html">Profile</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-heading">Help</div>
+        <ul class="footer-links">
+          <li><a href="#">How it Works</a></li>
+          <li><a href="#">Cancellation Policy</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 DineSync. All rights reserved.</span>
+      <span>Built with ❤️ for great dining experiences</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/main.js"></script>
+<script src="/js/restaurants.js"></script>
+</body>
+</html>

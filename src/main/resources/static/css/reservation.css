@@ -1,0 +1,528 @@
+/* ============================================================
+   DineSync - Reservation Page CSS
+   ============================================================ */
+
+/* --- Page Layout --- */
+.reservation-page {
+  padding: var(--space-2xl) 0 var(--space-3xl);
+}
+
+.reservation-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+/* --- Reservation Steps --- */
+.res-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: var(--space-xl);
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.res-step {
+  flex: 1;
+  padding: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 3px solid transparent;
+  transition: all var(--transition);
+}
+
+.res-step.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.res-step.done {
+  color: var(--primary);
+}
+
+.res-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--border);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+
+.res-step.active .res-step-num {
+  background: var(--primary);
+  color: #fff;
+}
+
+.res-step.done .res-step-num {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* --- Date/Time/Guests Form --- */
+.res-form-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-lg);
+}
+
+.res-form-card h2 {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.res-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+/* --- Table Selection --- */
+.tables-section {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-xl);
+}
+
+.tables-section h2 {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  margin-bottom: var(--space-sm);
+}
+
+.tables-legend {
+  display: flex;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-lg);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--border-light);
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+}
+
+.legend-dot.available { background: var(--primary-light); border-color: var(--primary); }
+.legend-dot.selected  { background: var(--primary); border-color: var(--primary); }
+.legend-dot.unavailable { background: var(--bg-section); border-color: var(--border); }
+
+.tables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-md);
+}
+
+/* --- Individual Table Card --- */
+.table-card {
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  background: var(--white);
+}
+
+.table-card:hover:not(.unavailable) {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.table-card.selected {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(107, 143, 113, 0.4);
+}
+
+.table-card.unavailable {
+  background: var(--bg-section);
+  border-color: var(--border-light);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.table-card-icon {
+  font-size: 1.8rem;
+  margin-bottom: var(--space-sm);
+  display: block;
+}
+
+.table-number {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.table-card.selected .table-number { color: #fff; }
+
+.table-capacity,
+.table-location-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.table-card.selected .table-capacity,
+.table-card.selected .table-location-label {
+  color: rgba(255,255,255,0.8);
+}
+
+.table-status-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.table-status-badge.available  { background: var(--primary); color: #fff; }
+.table-status-badge.selected   { background: #fff; color: var(--primary); }
+.table-status-badge.unavailable { background: var(--border); color: var(--text-muted); }
+
+/* --- Summary Sidebar --- */
+.res-summary-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-xl);
+  position: sticky;
+  top: 88px;
+}
+
+.res-summary-card h3 {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.res-restaurant-name {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: var(--space-sm);
+}
+
+.res-restaurant-location {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-lg);
+}
+
+.summary-divider {
+  height: 1px;
+  background: var(--border-light);
+  margin: var(--space-md) 0;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  margin-bottom: var(--space-sm);
+}
+
+.summary-row-label {
+  color: var(--text-muted);
+}
+
+.summary-row-value {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.summary-table-selected {
+  background: var(--primary-light);
+  border: 1.5px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin: var(--space-md) 0;
+}
+
+.summary-table-selected .table-num {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 1.1rem;
+}
+
+/* --- Confirmation page --- */
+.confirmation-page {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl) var(--space-lg);
+}
+
+.confirmation-card {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-2xl) var(--space-3xl);
+  text-align: center;
+  max-width: 560px;
+  width: 100%;
+}
+
+.confirmation-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #E8F4EA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto var(--space-lg);
+}
+
+.confirmation-title {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: var(--text);
+  margin-bottom: var(--space-sm);
+}
+
+.confirmation-id {
+  display: inline-block;
+  background: var(--bg-section);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  margin-bottom: var(--space-xl);
+  letter-spacing: 1px;
+}
+
+.confirmation-details {
+  background: var(--bg-section);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-xl);
+  margin-bottom: var(--space-xl);
+  text-align: left;
+}
+
+.conf-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.9rem;
+}
+
+.conf-detail-row:last-child {
+  border-bottom: none;
+}
+
+.conf-label {
+  color: var(--text-muted);
+}
+
+.conf-value {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.confirmation-actions {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* --- My Reservations --- */
+.reservations-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border-light);
+  margin-bottom: var(--space-xl);
+  gap: 0;
+}
+
+.tab-btn {
+  padding: var(--space-md) var(--space-xl);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.tab-btn:hover {
+  color: var(--text);
+}
+
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.reservation-item {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  padding: var(--space-lg) var(--space-xl);
+  margin-bottom: var(--space-md);
+  display: flex;
+  gap: var(--space-lg);
+  align-items: flex-start;
+  transition: box-shadow var(--transition);
+}
+
+.reservation-item:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.res-date-block {
+  background: var(--bg-section);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  text-align: center;
+  min-width: 70px;
+  flex-shrink: 0;
+}
+
+.res-date-day {
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.res-date-month {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+.res-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.res-restaurant {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.res-details-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.res-actions {
+  display: flex;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* Responsive reservation */
+@media (max-width: 900px) {
+  .reservation-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .res-summary-card {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .res-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tables-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .reservation-item {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .res-date-block {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    min-width: auto;
+    width: 100%;
+    text-align: left;
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  .res-date-day { font-size: 1.4rem; }
+
+  .confirmation-card {
+    padding: var(--space-xl) var(--space-lg);
+  }
+
+  .res-steps {
+    flex-wrap: wrap;
+  }
+}

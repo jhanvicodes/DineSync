@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmed — DineSync</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/reservation.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="nav-logo">Dine<span>Sync</span></a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/restaurants.html">Restaurants</a></li>
+      <li><a href="/my-reservations.html" id="nav-my-reservations" style="display:none;">My Reservations</a></li>
+    </ul>
+    <div class="nav-actions">
+      <span id="nav-username" style="font-size:0.88rem; font-weight:600; color:var(--text-muted);"></span>
+      <a href="/profile.html" id="nav-profile" class="btn btn-ghost btn-sm" style="display:none;">Profile</a>
+      <a href="/login.html" id="nav-login" class="btn btn-ghost btn-sm">Log In</a>
+      <a href="/signup.html" id="nav-signup" class="btn btn-primary btn-sm">Sign Up</a>
+      <button id="nav-logout" class="btn btn-outline btn-sm" style="display:none;" onclick="logout()">Log Out</button>
+    </div>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- CONFIRMATION -->
+<div class="confirmation-page">
+  <div class="confirmation-card">
+    <div class="confirmation-icon">✅</div>
+    <h1 class="confirmation-title">Reservation Confirmed!</h1>
+    <p class="text-muted mb-4">Your table has been reserved. We look forward to welcoming you.</p>
+
+    <div class="confirmation-id" id="conf-booking-id">Booking #—</div>
+
+    <div class="confirmation-details" id="conf-details">
+      <div class="conf-detail-row">
+        <span class="conf-label">🍽️ Restaurant</span>
+        <span class="conf-value" id="conf-restaurant">—</span>
+      </div>
+      <div class="conf-detail-row">
+        <span class="conf-label">📅 Date</span>
+        <span class="conf-value" id="conf-date">—</span>
+      </div>
+      <div class="conf-detail-row">
+        <span class="conf-label">🕐 Time</span>
+        <span class="conf-value" id="conf-time">—</span>
+      </div>
+      <div class="conf-detail-row">
+        <span class="conf-label">👥 Guests</span>
+        <span class="conf-value" id="conf-guests">—</span>
+      </div>
+      <div class="conf-detail-row">
+        <span class="conf-label">🪑 Table</span>
+        <span class="conf-value" id="conf-table">—</span>
+      </div>
+    </div>
+
+    <div class="confirmation-actions">
+      <a href="/my-reservations.html" class="btn btn-primary btn-lg">View My Reservations</a>
+      <a href="/" class="btn btn-outline btn-lg">Back to Home</a>
+    </div>
+
+    <p class="text-muted" style="font-size:0.78rem; margin-top:var(--space-lg);">
+      You can modify or cancel this reservation from My Reservations up to 2 hours before your booking.
+    </p>
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const params = new URLSearchParams(window.location.search);
+    const reservationId = params.get('id');
+
+    if (!reservationId) {
+      window.location.href = '/';
+      return;
+    }
+
+    // Try to load from localStorage first (freshly created)
+    const cached = localStorage.getItem('dinesync_confirmation');
+    if (cached) {
+      const data = JSON.parse(cached);
+      const res = data.reservation;
+      if (res) {
+        document.getElementById('conf-booking-id').textContent = `Booking #${res.reservationId}`;
+        document.getElementById('conf-restaurant').textContent = res.restaurantName || '—';
+        document.getElementById('conf-date').textContent = formatDate(res.reservationDate);
+        document.getElementById('conf-time').textContent = formatTime(res.startTime + '') + ' – ' + formatTime(res.endTime + '');
+        document.getElementById('conf-guests').textContent = res.guests + ' guest' + (res.guests !== 1 ? 's' : '');
+        document.getElementById('conf-table').textContent = (res.tableNumber || '—') + (res.tableLocation ? ` (${res.tableLocation})` : '');
+        localStorage.removeItem('dinesync_confirmation');
+        return;
+      }
+    }
+
+    // Otherwise fetch from API
+    try {
+      const res = await Api.get(`/reservations/${reservationId}`);
+      document.getElementById('conf-booking-id').textContent = `Booking #${res.reservationId}`;
+      document.getElementById('conf-restaurant').textContent = res.restaurantName || '—';
+      document.getElementById('conf-date').textContent = formatDate(res.reservationDate);
+      document.getElementById('conf-time').textContent = formatTime(res.startTime + '') + ' – ' + formatTime(res.endTime + '');
+      document.getElementById('conf-guests').textContent = res.guests + ' guest' + (res.guests !== 1 ? 's' : '');
+      document.getElementById('conf-table').textContent = (res.tableNumber || '—') + (res.tableLocation ? ` (${res.tableLocation})` : '');
+    } catch (err) {
+      document.getElementById('conf-details').innerHTML = `<p class="text-muted text-center">Could not load booking details.</p>`;
+    }
+  });
+</script>
+</body>
+</html>

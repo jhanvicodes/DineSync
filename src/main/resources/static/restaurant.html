@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant Details — DineSync</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .restaurant-hero { width: 100%; height: 380px; object-fit: cover; display: block; }
+    .restaurant-detail-layout { display: grid; grid-template-columns: 1fr 320px; gap: var(--space-xl); align-items: start; margin-top: var(--space-xl); }
+    .restaurant-info-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: var(--space-xl); margin-bottom: var(--space-lg); }
+    .restaurant-name-title { font-family: var(--font-serif); font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--text); margin-bottom: var(--space-sm); }
+    .info-row { display: flex; align-items: center; gap: var(--space-sm); font-size: 0.9rem; color: var(--text-muted); margin-bottom: var(--space-sm); }
+    .menu-category { margin-bottom: var(--space-xl); }
+    .menu-category-title { font-family: var(--font-serif); font-size: 1.2rem; color: var(--text); padding-bottom: var(--space-sm); border-bottom: 2px solid var(--border-light); margin-bottom: var(--space-md); }
+    .menu-items-grid { display: grid; gap: var(--space-md); }
+    .menu-item-card { display: flex; justify-content: space-between; align-items: flex-start; padding: var(--space-md) var(--space-lg); background: var(--bg); border-radius: var(--radius-md); border: 1px solid var(--border-light); gap: var(--space-md); }
+    .menu-item-card.unavailable { opacity: 0.5; }
+    .menu-item-name { font-weight: 600; font-size: 0.95rem; color: var(--text); }
+    .menu-item-desc { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; }
+    .menu-item-price { font-weight: 700; font-size: 1rem; color: var(--primary); white-space: nowrap; }
+    .review-card { background: var(--white); border-radius: var(--radius-md); border: 1px solid var(--border-light); padding: var(--space-lg); margin-bottom: var(--space-md); }
+    .review-header { display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-sm); }
+    .reviewer-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+    .reviewer-name { font-weight: 600; font-size: 0.9rem; color: var(--text); }
+    .review-date { font-size: 0.78rem; color: var(--text-muted); }
+    .review-stars { margin-left: auto; color: #F5A623; }
+    .review-comment { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+    .sidebar-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: var(--space-xl); position: sticky; top: 88px; }
+    .sidebar-card h3 { font-family: var(--font-serif); font-size: 1.2rem; margin-bottom: var(--space-lg); padding-bottom: var(--space-md); border-bottom: 1px solid var(--border-light); }
+    @media (max-width: 900px) { .restaurant-detail-layout { grid-template-columns: 1fr; } .sidebar-card { position: static; } }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="nav-logo">Dine<span>Sync</span></a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/restaurants.html" class="active">Restaurants</a></li>
+      <li><a href="/my-reservations.html" id="nav-my-reservations" style="display:none;">My Reservations</a></li>
+      <li><a href="/admin/dashboard.html" id="nav-admin" style="display:none;">Admin</a></li>
+    </ul>
+    <div class="nav-actions">
+      <span id="nav-username" style="font-size:0.88rem; font-weight:600; color:var(--text-muted);"></span>
+      <a href="/profile.html" id="nav-profile" class="btn btn-ghost btn-sm" style="display:none;">Profile</a>
+      <a href="/login.html" id="nav-login" class="btn btn-ghost btn-sm">Log In</a>
+      <a href="/signup.html" id="nav-signup" class="btn btn-primary btn-sm">Sign Up</a>
+      <button id="nav-logout" class="btn btn-outline btn-sm" style="display:none;" onclick="logout()">Log Out</button>
+    </div>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- RESTAURANT HERO IMAGE -->
+<div style="position:relative; overflow:hidden; background:#2C2C2C; max-height:400px;">
+  <img id="restaurant-hero-img" src="" alt="" class="restaurant-hero" onerror="this.style.display='none'">
+  <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%);"></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+  <div id="restaurant-main">
+    <div class="restaurant-detail-layout">
+      <!-- Left: Info + Menu + Reviews -->
+      <div>
+        <!-- Restaurant Info -->
+        <div class="restaurant-info-card">
+          <div id="restaurant-rating" class="mb-3"></div>
+          <h1 class="restaurant-name-title" id="restaurant-name">Loading...</h1>
+          <div class="info-row"><span id="restaurant-cuisine"></span></div>
+          <div class="info-row" id="restaurant-location"></div>
+          <div class="info-row" id="restaurant-phone"></div>
+          <div class="info-row" id="restaurant-hours"></div>
+          <div class="info-row">
+            <span class="price-badge" id="restaurant-price"></span>
+          </div>
+          <p id="restaurant-description" style="margin-top:var(--space-md); font-size:0.95rem; color:var(--text-muted); line-height:1.8;"></p>
+        </div>
+
+        <!-- Menu -->
+        <div class="restaurant-info-card">
+          <h2 style="font-family:var(--font-serif); font-size:1.4rem; margin-bottom:var(--space-xl);">Menu</h2>
+          <div id="menu-container">
+            <div class="spinner-overlay"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <!-- Reviews -->
+        <div class="restaurant-info-card">
+          <h2 style="font-family:var(--font-serif); font-size:1.4rem; margin-bottom:var(--space-lg);">Guest Reviews</h2>
+          <div id="reviews-container"></div>
+        </div>
+
+        <!-- Post Review -->
+        <div class="restaurant-info-card" id="review-form-section">
+          <h3 style="font-family:var(--font-serif); font-size:1.2rem; margin-bottom:var(--space-lg);">Leave a Review</h3>
+          <form id="review-form">
+            <div style="margin-bottom:var(--space-md);">
+              <label style="font-size:0.82rem; font-weight:600; display:block; margin-bottom:8px;">Your Rating</label>
+              <div class="star-rating">
+                <span class="star review-star" data-value="1">★</span>
+                <span class="star review-star" data-value="2">★</span>
+                <span class="star review-star" data-value="3">★</span>
+                <span class="star review-star" data-value="4">★</span>
+                <span class="star review-star" data-value="5">★</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="review-comment">Your Review (optional)</label>
+              <textarea id="review-comment" class="form-control" rows="3" placeholder="Share your dining experience..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Post Review</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right: Reserve Sidebar -->
+      <div>
+        <div class="sidebar-card">
+          <h3>Reserve a Table</h3>
+          <p class="res-restaurant-name" id="sidebar-restaurant-name" style="font-family:var(--font-serif); font-size:1.1rem; font-weight:600; margin-bottom:var(--space-sm);"></p>
+
+          <div style="background:var(--bg-section); border-radius:var(--radius-md); padding:var(--space-md); margin-bottom:var(--space-lg);">
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px;">Hours</div>
+            <div id="sidebar-hours" style="font-size:0.9rem; font-weight:600; color:var(--text);"></div>
+          </div>
+
+          <a id="reserve-btn" href="#" class="btn btn-primary btn-full btn-lg">
+            Reserve a Table
+          </a>
+
+          <p style="font-size:0.78rem; text-align:center; color:var(--text-muted); margin-top:var(--space-md);">
+            No reservation fees · Instant confirmation
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer" style="margin-top:var(--space-3xl);">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">Dine<span>Sync</span></div>
+        <p class="footer-tagline">The modern way to discover and reserve tables at exceptional restaurants.</p>
+      </div>
+      <div>
+        <div class="footer-heading">Explore</div>
+        <ul class="footer-links">
+          <li><a href="/restaurants.html">All Restaurants</a></li>
+          <li><a href="/">Home</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-heading">Account</div>
+        <ul class="footer-links">
+          <li><a href="/my-reservations.html">My Reservations</a></li>
+          <li><a href="/login.html">Log In</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 DineSync. All rights reserved.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/main.js"></script>
+<script src="/js/restaurant.js"></script>
+<script>
+  // Sync sidebar fields when restaurant loads
+  const origRenderRestaurant = renderRestaurant;
+  // restaurant.js renderRestaurant already sets sidebar fields via sidebar IDs
+  document.addEventListener('DOMContentLoaded', () => {
+    // sidebar hours and name sync
+    setTimeout(() => {
+      const n = document.getElementById('restaurant-name')?.textContent;
+      const h = document.getElementById('restaurant-hours')?.textContent;
+      if (n) document.getElementById('sidebar-restaurant-name').textContent = n;
+      if (h) document.getElementById('sidebar-hours').textContent = h.replace('🕐 ', '');
+    }, 1500);
+  });
+</script>
+</body>
+</html>

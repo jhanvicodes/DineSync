@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up — DineSync</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body class="auth-page">
+
+<!-- LEFT: Visual Panel -->
+<div class="auth-visual">
+  <div class="auth-visual-bg" style="background-image: url('https://images.unsplash.com/photo-1552566626-52f8b828add9?w=900&auto=format&fit=crop&q=80');"></div>
+  <div class="auth-visual-content">
+    <a href="/" class="auth-brand">Dine<span>Sync</span></a>
+    <div class="auth-visual-quote">
+      <blockquote>"People who love to eat are always the best people."</blockquote>
+      <cite>— Julia Child</cite>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT: Signup Form -->
+<div class="auth-panel">
+  <div class="auth-form-wrap">
+    <h1 class="auth-heading">Create Account</h1>
+    <p class="auth-subheading">Join DineSync and start reserving your perfect table</p>
+
+    <div class="auth-alert" id="signup-alert"></div>
+
+    <form id="signup-form" class="auth-form" autocomplete="on">
+      <div class="form-group">
+        <label for="name">Full Name <span style="color:#E85D5D;">*</span></label>
+        <input type="text" id="name" name="name" placeholder="Jane Smith" required autocomplete="name">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address <span style="color:#E85D5D;">*</span></label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" placeholder="+91 98765 43210" autocomplete="tel">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password <span style="color:#E85D5D;">*</span></label>
+        <div class="input-password-wrap">
+          <input type="password" id="password" name="password" placeholder="At least 6 characters" required autocomplete="new-password">
+          <button type="button" class="password-toggle" id="toggle-password">👁️</button>
+        </div>
+        <div class="password-strength">
+          <div class="strength-bar"></div>
+          <div class="strength-bar"></div>
+          <div class="strength-bar"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm-password">Confirm Password <span style="color:#E85D5D;">*</span></label>
+        <div class="input-password-wrap">
+          <input type="password" id="confirm-password" name="confirm-password" placeholder="Repeat your password" required autocomplete="new-password">
+          <button type="button" class="password-toggle" id="toggle-confirm-password">👁️</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top:var(--space-md);">
+        Create Account
+      </button>
+    </form>
+
+    <div class="auth-footer-link">
+      Already have an account? <a href="/login.html">Log In</a>
+    </div>
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script src="/js/auth.js"></script>
+</body>
+</html>

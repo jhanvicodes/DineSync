@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In — DineSync</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body class="auth-page">
+
+<!-- LEFT: Visual Panel -->
+<div class="auth-visual">
+  <div class="auth-visual-bg"></div>
+  <div class="auth-visual-content">
+    <a href="/" class="auth-brand">Dine<span>Sync</span></a>
+    <div class="auth-visual-quote">
+      <blockquote>"The discovery of a new dish does more for human happiness than the discovery of a new star."</blockquote>
+      <cite>— Jean Anthelme Brillat-Savarin</cite>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT: Login Form -->
+<div class="auth-panel">
+  <div class="auth-form-wrap">
+    <h1 class="auth-heading">Welcome back</h1>
+    <p class="auth-subheading">Sign in to manage your reservations</p>
+
+    <div class="auth-alert" id="login-alert"></div>
+
+    <form id="login-form" class="auth-form" autocomplete="on">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-password-wrap">
+          <input type="password" id="password" name="password" placeholder="Your password" required autocomplete="current-password">
+          <button type="button" class="password-toggle" id="toggle-password">👁️</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full btn-lg" style="margin-top:var(--space-md);">
+        Log In
+      </button>
+    </form>
+
+    <div class="auth-divider">or</div>
+
+    <!-- Quick demo logins -->
+    <div style="background:var(--bg-section); border-radius:var(--radius-md); padding:var(--space-md); margin-bottom:var(--space-lg);">
+      <p style="font-size:0.78rem; font-weight:600; color:var(--text-muted); margin-bottom:var(--space-sm);">Quick Demo Login:</p>
+      <button class="btn btn-ghost btn-sm" style="width:100%; justify-content:flex-start; margin-bottom:6px;" onclick="demoLogin('alice@example.com','password123')">
+        👤 Customer: alice@example.com / password123
+      </button>
+      <button class="btn btn-ghost btn-sm" style="width:100%; justify-content:flex-start;" onclick="demoLogin('admin@dinesync.com','admin123')">
+        🔧 Admin: admin@dinesync.com / admin123
+      </button>
+    </div>
+
+    <div class="auth-footer-link">
+      Don't have an account? <a href="/signup.html">Sign Up</a>
+    </div>
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+  function demoLogin(email, password) {
+    document.getElementById('email').value = email;
+    document.getElementById('password').value = password;
+    document.getElementById('login-form').dispatchEvent(new Event('submit'));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Menu — DineSync Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-logo">
+      <div class="admin-logo-text">Dine<span>Sync</span></div>
+      <div class="admin-logo-sub">Admin Panel</div>
+    </div>
+
+    <nav class="admin-nav">
+      <div class="admin-nav-section">Main</div>
+      <a href="/admin/dashboard.html" class="admin-nav-link">
+        <span class="admin-nav-icon">📊</span> Dashboard
+      </a>
+      <a href="/admin/reservations.html" class="admin-nav-link">
+        <span class="admin-nav-icon">📅</span> Reservations
+      </a>
+      <a href="/admin/customers.html" class="admin-nav-link">
+        <span class="admin-nav-icon">👥</span> Customers
+      </a>
+
+      <div class="admin-nav-section">Manage</div>
+      <a href="/admin/restaurants.html" class="admin-nav-link">
+        <span class="admin-nav-icon">🍽️</span> Restaurants
+      </a>
+      <a href="/admin/tables.html" class="admin-nav-link">
+        <span class="admin-nav-icon">🪑</span> Tables
+      </a>
+      <a href="/admin/menu.html" class="admin-nav-link active">
+        <span class="admin-nav-icon">📋</span> Menu
+      </a>
+
+      <div class="admin-nav-section">Account</div>
+      <a href="/" class="admin-nav-link">
+        <span class="admin-nav-icon">🏠</span> Go to Site
+      </a>
+      <a href="#" class="admin-nav-link" onclick="logout()">
+        <span class="admin-nav-icon">🚪</span> Log Out
+      </a>
+    </nav>
+
+    <div class="admin-sidebar-footer">
+      <div class="admin-user-info">
+        <div class="admin-avatar" id="admin-avatar">A</div>
+        <div>
+          <div class="admin-user-name" id="admin-user-name">Admin</div>
+          <div class="admin-user-role">Administrator</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <button class="admin-hamburger" aria-label="Menu">☰</button>
+      </div>
+      <div class="admin-topbar-title">
+        <h1>Menu Management</h1>
+        <p>Manage appetizers, main courses, desserts, beverages and availability</p>
+      </div>
+      <div class="admin-topbar-actions">
+        <button class="btn btn-primary btn-sm" onclick="openAddMenu()">+ Add Menu Item</button>
+        <a href="/restaurants.html" class="btn btn-outline btn-sm">View Site</a>
+      </div>
+    </div>
+
+    <div class="admin-content">
+      <div class="admin-section">
+        <div class="admin-section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-md);">
+          <div>
+            <h3>Menu Items</h3>
+            <p class="text-muted" style="font-size: 0.85rem;">Select a restaurant to view and update its menu items</p>
+          </div>
+          <div style="display: flex; gap: var(--space-md); align-items: center;">
+            <select id="menu-restaurant-select" class="form-control" style="min-width: 250px;">
+              <option value="">Select a Restaurant</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="openAddMenu()">+ Add Item</button>
+          </div>
+        </div>
+
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="menu-table-body">
+              <tr><td colspan="6" class="text-center text-muted" style="padding:32px;">Please select a restaurant above to view its menu</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<!-- MENU ITEM MODAL (Add/Edit) -->
+<div class="modal-overlay" id="menu-modal">
+  <div class="modal" style="max-width: 550px;">
+    <div class="modal-header">
+      <h3 id="menu-modal-title">Add Menu Item</h3>
+      <button class="modal-close" onclick="closeMenuModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="m-id">
+      
+      <div class="form-group">
+        <label for="m-name">Item Name *</label>
+        <input type="text" id="m-name" class="form-control" placeholder="e.g. Tonkotsu Ramen" required>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+        <div class="form-group">
+          <label for="m-category">Category *</label>
+          <select id="m-category" class="form-control">
+            <option value="Starter">Starter</option>
+            <option value="Main" selected>Main</option>
+            <option value="Dessert">Dessert</option>
+            <option value="Drink">Drink</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="m-price">Price (₹) *</label>
+          <input type="number" id="m-price" class="form-control" step="0.01" min="0" placeholder="e.g. 850.00" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="m-description">Description</label>
+        <textarea id="m-description" class="form-control" rows="3" placeholder="Ingredients, flavor notes, dietary info..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="m-image">Image URL (Optional)</label>
+        <input type="url" id="m-image" class="form-control" placeholder="https://images.unsplash.com/...">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="checkbox" id="m-available" checked style="width: 18px; height: 18px;">
+          <span style="font-weight: 500; font-size: 0.9rem;">Item is currently available for ordering</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeMenuModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveMenuItem()">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/main.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>
