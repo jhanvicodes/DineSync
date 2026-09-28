@@ -13,7 +13,7 @@
      ============================================================ -->
 <nav class="navbar">
   <div class="navbar-inner">
-    <a href="/" class="nav-logo">Dine<span>Sync</span></a>
+    <a href="/" class="nav-logo"><span class="nav-logo-dine">Dine</span><span class="nav-logo-sync">Sync</span></a>
 
     <ul class="nav-links">
       <li><a href="/" class="active">Home</a></li>
@@ -23,8 +23,7 @@
     </ul>
 
     <div class="nav-actions">
-      <span id="nav-username" style="font-size:0.88rem; font-weight:600; color:var(--text-muted);"></span>
-      <a href="/profile.html" id="nav-profile" class="btn btn-ghost btn-sm" style="display:none;">Profile</a>
+      <a href="/profile.html" id="nav-profile" class="btn btn-ghost btn-sm nav-profile-link" style="display:none;"><span class="nav-profile-icon" aria-hidden="true">👤</span><span>Profile</span></a>
       <a href="/login.html" id="nav-login" class="btn btn-ghost btn-sm">Log In</a>
       <a href="/signup.html" id="nav-signup" class="btn btn-primary btn-sm">Sign Up</a>
       <button id="nav-logout" class="btn btn-outline btn-sm" style="display:none;" onclick="logout()">Log Out</button>
@@ -112,32 +111,7 @@
       <p class="section-subtitle">From bold flavours to delicate artistry — find your craving</p>
     </div>
 
-    <div class="cuisines-grid">
-      <div class="cuisine-pill" onclick="searchByCuisine('Mediterranean')">
-        <span class="cuisine-pill-emoji">🫒</span>
-        <div class="cuisine-pill-name">Mediterranean</div>
-      </div>
-      <div class="cuisine-pill" onclick="searchByCuisine('Asian Fusion')">
-        <span class="cuisine-pill-emoji">🍜</span>
-        <div class="cuisine-pill-name">Asian Fusion</div>
-      </div>
-      <div class="cuisine-pill" onclick="searchByCuisine('Contemporary')">
-        <span class="cuisine-pill-emoji">🥩</span>
-        <div class="cuisine-pill-name">Contemporary</div>
-      </div>
-      <div class="cuisine-pill" onclick="searchByCuisine('Italian')">
-        <span class="cuisine-pill-emoji">🍝</span>
-        <div class="cuisine-pill-name">Italian</div>
-      </div>
-      <div class="cuisine-pill" onclick="searchByCuisine('Indian')">
-        <span class="cuisine-pill-emoji">🍛</span>
-        <div class="cuisine-pill-name">Indian</div>
-      </div>
-      <div class="cuisine-pill" onclick="searchByCuisine('Japanese')">
-        <span class="cuisine-pill-emoji">🍱</span>
-        <div class="cuisine-pill-name">Japanese</div>
-      </div>
-    </div>
+    <div id="popular-cuisines" class="cuisines-grid"></div>
   </div>
 </section>
 
@@ -259,19 +233,52 @@
     window.location.href = `/restaurants.html?cuisine=${encodeURIComponent(cuisine)}`;
   }
 
+  const cuisineEmojis = {
+    'Mediterranean': '🫒',
+    'Asian Fusion': '🍜',
+    'Contemporary': '🥩',
+    'Italian': '🍝',
+    'Indian': '🍛',
+    'Japanese': '🍱',
+    'Mexican': '🌮',
+    'Pan-Asian': '🥢',
+    'Cafe/Bistro': '☕',
+    'Default': '🍽️'
+  };
+
+  function renderCuisinePills(restaurants) {
+    const container = document.getElementById('popular-cuisines');
+    if (!container) return;
+
+    const cuisines = [...new Set(restaurants.map(r => r.cuisine).filter(Boolean))];
+    if (!cuisines.length) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🍴</div><h3>No cuisines yet</h3></div>';
+      return;
+    }
+
+    container.innerHTML = cuisines.map(cuisine => `
+      <div class="cuisine-pill" onclick="searchByCuisine('${cuisine.replace(/'/g, "\\'")}')">
+        <span class="cuisine-pill-emoji">${cuisineEmojis[cuisine] || cuisineEmojis.Default}</span>
+        <div class="cuisine-pill-name">${cuisine}</div>
+      </div>
+    `).join('');
+  }
+
   // Load featured restaurants
   async function loadFeaturedRestaurants() {
     try {
       const restaurants = await Api.get('/restaurants');
-      const featured = restaurants.slice(0, 3);
+      const featured = restaurants.slice(0, 6);
       const container = document.getElementById('featured-restaurants');
+
+      renderCuisinePills(restaurants);
 
       if (!featured.length) {
         container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🍽️</div><h3>No restaurants yet</h3><p>Check back soon!</p></div>`;
         return;
       }
 
-      container.innerHTML = `<div class="restaurants-grid">${featured.map(r => `
+      container.innerHTML = featured.map(r => `
         <div class="restaurant-card" onclick="window.location.href='/restaurant.html?id=${r.restaurantId}'">
           ${r.imageUrl ? `<img src="${r.imageUrl}" alt="${r.name}" class="restaurant-card-image" onerror="this.style.display='none'">` : `<div class="restaurant-card-image-placeholder">🍽️</div>`}
           <div class="restaurant-card-body">
@@ -284,13 +291,13 @@
             </div>
             <div class="restaurant-card-meta">
               <span class="meta-item">📍 ${r.location}</span>
-              <span class="price-badge">${r.priceRange}</span>
+              <span class="price-badge">${formatPriceRange(r.priceRange)}</span>
             </div>
             <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:var(--space-md); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${r.description || ''}</p>
             <span class="btn btn-sm btn-outline">Reserve Table →</span>
           </div>
         </div>
-      `).join('')}</div>`;
+      `).join('');
     } catch (err) {
       document.getElementById('featured-restaurants').innerHTML = `<p class="text-muted text-center">Could not load restaurants.</p>`;
     }

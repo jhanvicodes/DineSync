@@ -75,7 +75,7 @@ function renderRestaurantCard(r) {
         </div>
         <div class="restaurant-card-meta">
           <span class="meta-item">📍 ${escapeHtml(r.location)}</span>
-          <span class="price-badge">${r.priceRange || '$$'}</span>
+          <span class="price-badge">${formatPriceRange(r.priceRange)}</span>
         </div>
         <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:var(--space-md); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
           ${escapeHtml(r.description || '')}

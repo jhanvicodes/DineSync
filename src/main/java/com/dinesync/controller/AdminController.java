@@ -178,7 +178,21 @@ public class AdminController {
             @RequestHeader(value = "X-User-Id", required = false) String userIdHeader) {
         ResponseEntity<Map<String, Object>> authError = checkAdmin(userIdHeader);
         if (authError != null) return ResponseEntity.status(403).body(authError.getBody());
-        return ResponseEntity.ok(userDAO.findAllCustomers());
+
+        List<Map<String, Object>> sanitized = userDAO.findAllCustomers().stream()
+            .map(u -> {
+                Map<String, Object> data = new HashMap<>();
+                data.put("userId", u.getUserId());
+                data.put("name", u.getName());
+                data.put("email", u.getEmail());
+                data.put("phone", u.getPhone());
+                data.put("role", u.getRole());
+                data.put("createdAt", u.getCreatedAt());
+                return data;
+            })
+            .toList();
+
+        return ResponseEntity.ok(sanitized);
     }
 
     // ============================================================

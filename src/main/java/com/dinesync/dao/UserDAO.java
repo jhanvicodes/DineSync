@@ -3,12 +3,8 @@ package com.dinesync.dao;
 import com.dinesync.model.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
@@ -82,22 +78,23 @@ public class UserDAO {
      * Returns the auto-generated user_id.
      */
     public int save(User user) {
-        String sql = "INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, ?) RETURNING user_id";
 
-        KeyHolder keyHolder = new GeneratedKeyHolder();
+        Integer newUserId = jdbcTemplate.queryForObject(
+                sql,
+                Integer.class,
+                user.getName(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getPassword(),
+                user.getRole() != null ? user.getRole() : "CUSTOMER"
+        );
 
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, user.getName());
-            ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPhone());
-            ps.setString(4, user.getPassword());
-            ps.setString(5, user.getRole() != null ? user.getRole() : "CUSTOMER");
-            return ps;
-        }, keyHolder);
+        if (newUserId == null) {
+            throw new IllegalStateException("User creation succeeded but no user_id was returned from the database.");
+        }
 
-        // Return the generated primary key
-        return keyHolder.getKey().intValue();
+        return newUserId;
     }
 
     /**

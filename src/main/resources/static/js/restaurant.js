@@ -10,8 +10,6 @@ let currentRestaurantId = null;
 // ============================================================
 
 async function loadRestaurantDetails(restaurantId) {
-  showLoading('restaurant-main', 'Loading restaurant...');
-
   try {
     const data = await Api.get(`/restaurants/${restaurantId}`);
 
@@ -61,7 +59,7 @@ function renderRestaurant(r, reviews) {
   setEl('restaurant-cuisine', r.cuisine);
   setEl('restaurant-location', '📍 ' + r.location);
   setEl('restaurant-phone', '📞 ' + (r.phone || 'Not available'));
-  setEl('restaurant-price', r.priceRange || '$$');
+  setEl('restaurant-price', formatPriceRange(r.priceRange));
   setEl('restaurant-hours', `🕐 ${formatTime(r.openingTime)} – ${formatTime(r.closingTime)}`);
   setEl('restaurant-description', r.description || '');
   setHtml('restaurant-rating', `<span class="rating-badge">${r.rating || 0}</span> ${renderStars(r.rating)}`);
@@ -240,9 +238,8 @@ function initReviewForm(restaurantId) {
         selectedRating = 0;
         stars.forEach(s => s.classList.remove('filled'));
 
-        // Reload reviews
-        const data = await Api.get(`/restaurants/${restaurantId}`);
-        if (data.success) renderReviews(data.reviews);
+        // Reload restaurant details to refresh the rating and review list
+        await loadRestaurantDetails(currentRestaurantId);
       } else {
         Toast.error(result.message || 'Failed to post review.');
       }

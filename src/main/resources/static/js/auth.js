@@ -12,6 +12,10 @@ function initLoginPage() {
   const form = document.getElementById('login-form');
   if (!form) return;
 
+  if (!Session.hasValidUser()) {
+    Session.clear();
+  }
+
   // If already logged in, redirect home
   if (Session.isLoggedIn()) {
     window.location.href = '/';

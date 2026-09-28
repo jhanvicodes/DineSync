@@ -53,8 +53,14 @@ public class ReservationController {
      * Body: { "userId": 1, "restaurantId": 1, "tableId": 3, "date": "2026-09-28", "time": "19:30", "guests": 4 }
      */
     @PostMapping("/api/reservations")
-    public ResponseEntity<Map<String, Object>> createReservation(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<Map<String, Object>> createReservation(
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
+            @RequestBody Map<String, Object> body) {
         try {
+            if (userIdHeader == null || userIdHeader.isBlank()) {
+                return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", "Not authenticated."));
+            }
             if (body == null || body.get("userId") == null || body.get("restaurantId") == null
                     || body.get("tableId") == null || body.get("date") == null
                     || body.get("time") == null || body.get("guests") == null) {
@@ -62,7 +68,13 @@ public class ReservationController {
                     .body(Map.of("success", false, "message", "All reservation fields are required."));
             }
 
+            int currentUserId = Integer.parseInt(userIdHeader);
             int userId = Integer.parseInt(body.get("userId").toString());
+            if (currentUserId != userId) {
+                return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", "You can only create reservations for your own account."));
+            }
+
             int restaurantId = Integer.parseInt(body.get("restaurantId").toString());
             int tableId = Integer.parseInt(body.get("tableId").toString());
             String date = (String) body.get("date");
@@ -93,7 +105,21 @@ public class ReservationController {
      * Returns all reservations for a specific user.
      */
     @GetMapping("/api/reservations/user/{userId}")
-    public ResponseEntity<List<Reservation>> getUserReservations(@PathVariable int userId) {
+    public ResponseEntity<Object> getUserReservations(
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
+            @PathVariable int userId) {
+        if (userIdHeader == null || userIdHeader.isBlank()) {
+            return ResponseEntity.status(403).body(Map.of("success", false, "message", "Not authenticated."));
+        }
+        try {
+            int currentUserId = Integer.parseInt(userIdHeader);
+            if (currentUserId != userId) {
+                return ResponseEntity.status(403).body(Map.of("success", false, "message", "You can only view your own reservations."));
+            }
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(403).body(Map.of("success", false, "message", "Invalid user ID."));
+        }
+
         return ResponseEntity.ok(reservationService.getUserReservations(userId));
     }
 
@@ -102,11 +128,28 @@ public class ReservationController {
      * Returns a single reservation by ID.
      */
     @GetMapping("/api/reservations/{id}")
-    public ResponseEntity<Object> getReservation(@PathVariable int id) {
+    public ResponseEntity<Object> getReservation(
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
+            @PathVariable int id) {
+        if (userIdHeader == null || userIdHeader.isBlank()) {
+            return ResponseEntity.status(403).body(Map.of("success", false, "message", "Not authenticated."));
+        }
+
         Optional<Reservation> reservationOpt = reservationService.getReservationById(id);
         if (reservationOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+
+        try {
+            int currentUserId = Integer.parseInt(userIdHeader);
+            boolean isAdmin = userDAO.findById(currentUserId).map(u -> "ADMIN".equals(u.getRole())).orElse(false);
+            if (!isAdmin && !reservationOpt.get().getUserId().equals(currentUserId)) {
+                return ResponseEntity.status(403).body(Map.of("success", false, "message", "You can only access your own reservations."));
+            }
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(403).body(Map.of("success", false, "message", "Invalid user ID."));
+        }
+
         return ResponseEntity.ok(reservationOpt.get());
     }
 
@@ -117,8 +160,13 @@ public class ReservationController {
      */
     @PutMapping("/api/reservations/{id}")
     public ResponseEntity<Map<String, Object>> modifyReservation(
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
             @PathVariable int id, @RequestBody Map<String, Object> body) {
         try {
+            if (userIdHeader == null || userIdHeader.isBlank()) {
+                return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", "Not authenticated."));
+            }
             if (body == null || body.get("userId") == null || body.get("date") == null
                     || body.get("time") == null || body.get("guests") == null
                     || body.get("tableId") == null) {
@@ -126,7 +174,13 @@ public class ReservationController {
                     .body(Map.of("success", false, "message", "Missing required fields for modification."));
             }
 
+            int currentUserId = Integer.parseInt(userIdHeader);
             int userId = Integer.parseInt(body.get("userId").toString());
+            if (currentUserId != userId) {
+                return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", "You can only modify your own reservations."));
+            }
+
             String date = (String) body.get("date");
             String time = (String) body.get("time");
             int guests = Integer.parseInt(body.get("guests").toString());
@@ -162,9 +216,24 @@ public class ReservationController {
      */
     @DeleteMapping("/api/reservations/{id}")
     public ResponseEntity<Map<String, Object>> cancelReservation(
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
             @PathVariable int id,
             @RequestParam int userId) {
-        // Verify admin role from DB — do NOT trust isAdmin from the browser
+        if (userIdHeader == null || userIdHeader.isBlank()) {
+            return ResponseEntity.status(403)
+                .body(Map.of("success", false, "message", "Not authenticated."));
+        }
+        try {
+            int currentUserId = Integer.parseInt(userIdHeader);
+            if (currentUserId != userId) {
+                return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", "You can only cancel your own reservations."));
+            }
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(403)
+                .body(Map.of("success", false, "message", "Invalid user ID."));
+        }
+
         boolean isAdmin = userDAO.findById(userId)
             .map(u -> "ADMIN".equals(u.getRole()))
             .orElse(false);

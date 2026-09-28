@@ -7,6 +7,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.sql.DataSource;
@@ -80,16 +85,46 @@ public class DatabaseConfig {
     }
 
     /**
-     * Allow all HTTP requests (no Spring Security authentication required).
-     * Our API endpoints handle their own authorization logic.
+     * Explicitly configure Spring Security for this app.
+     * DineSync handles its own auth flow via the custom /api/auth endpoints,
+     * so the default generated login page/user is not needed.
      */
+    @Bean
+    public UserDetailsService userDetailsService() {
+        UserDetails internalUser = User.withUsername("dinesync")
+                .password("{noop}dinesync-internal")
+                .roles("USER")
+                .build();
+        return new InMemoryUserDetailsManager(internalUser);
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())           // Disable CSRF for REST APIs
+            .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()           // Allow all requests
-            );
+                .requestMatchers(
+                    "/",
+                    "/index.html",
+                    "/login.html",
+                    "/signup.html",
+                    "/restaurants.html",
+                    "/restaurant.html",
+                    "/reservation.html",
+                    "/my-reservations.html",
+                    "/profile.html",
+                    "/confirmation.html",
+                    "/css/**",
+                    "/js/**",
+                    "/api/auth/**",
+                    "/api/restaurants/**",
+                    "/api/admin/**"
+                ).permitAll()
+                .anyRequest().permitAll()
+            )
+            .formLogin(AbstractHttpConfigurer::disable)
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .logout(AbstractHttpConfigurer::disable);
         return http.build();
     }
 }

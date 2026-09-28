@@ -12,15 +12,14 @@
 <!-- NAVBAR -->
 <nav class="navbar">
   <div class="navbar-inner">
-    <a href="/" class="nav-logo">Dine<span>Sync</span></a>
+    <a href="/" class="nav-logo"><span class="nav-logo-dine">Dine</span><span class="nav-logo-sync">Sync</span></a>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
       <li><a href="/restaurants.html">Restaurants</a></li>
       <li><a href="/my-reservations.html" class="active" id="nav-my-reservations">My Reservations</a></li>
     </ul>
     <div class="nav-actions">
-      <span id="nav-username" style="font-size:0.88rem; font-weight:600; color:var(--text-muted);"></span>
-      <a href="/profile.html" id="nav-profile" class="btn btn-ghost btn-sm" style="display:none;">Profile</a>
+      <a href="/profile.html" id="nav-profile" class="btn btn-ghost btn-sm nav-profile-link" style="display:none;"><span class="nav-profile-icon" aria-hidden="true">👤</span><span>Profile</span></a>
       <a href="/login.html" id="nav-login" class="btn btn-ghost btn-sm">Log In</a>
       <a href="/signup.html" id="nav-signup" class="btn btn-primary btn-sm">Sign Up</a>
       <button id="nav-logout" class="btn btn-outline btn-sm" style="display:none;" onclick="logout()">Log Out</button>

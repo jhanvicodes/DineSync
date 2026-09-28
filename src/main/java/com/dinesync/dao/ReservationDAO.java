@@ -192,22 +192,25 @@ public class ReservationDAO {
     public int save(Reservation res) {
         String sql =
             "INSERT INTO reservations (user_id, restaurant_id, table_id, reservation_date, start_time, end_time, guests, status) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, 'CONFIRMED')";
+            "VALUES (?, ?, ?, ?, ?, ?, ?, 'CONFIRMED') RETURNING reservation_id";
 
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, res.getUserId());
-            ps.setInt(2, res.getRestaurantId());
-            ps.setInt(3, res.getTableId());
-            ps.setDate(4, java.sql.Date.valueOf(res.getReservationDate()));
-            ps.setTime(5, java.sql.Time.valueOf(res.getStartTime()));
-            ps.setTime(6, java.sql.Time.valueOf(res.getEndTime()));
-            ps.setInt(7, res.getGuests());
-            return ps;
-        }, keyHolder);
+        Integer reservationId = jdbcTemplate.queryForObject(
+            sql,
+            Integer.class,
+            res.getUserId(),
+            res.getRestaurantId(),
+            res.getTableId(),
+            java.sql.Date.valueOf(res.getReservationDate()),
+            java.sql.Time.valueOf(res.getStartTime()),
+            java.sql.Time.valueOf(res.getEndTime()),
+            res.getGuests()
+        );
 
-        return keyHolder.getKey().intValue();
+        if (reservationId == null) {
+            throw new IllegalStateException("Reservation creation succeeded but no reservation_id was returned from the database.");
+        }
+
+        return reservationId;
     }
 
     /**

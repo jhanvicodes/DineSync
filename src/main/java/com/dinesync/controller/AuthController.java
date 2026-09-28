@@ -86,8 +86,25 @@ public class AuthController {
      * GET /api/auth/profile?userId=1
      */
     @GetMapping("/profile")
-    public ResponseEntity<Map<String, Object>> getProfile(@RequestParam int userId) {
-        Map<String, Object> result = authService.getProfile(userId);
+    public ResponseEntity<Map<String, Object>> getProfile(
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
+            @RequestParam(required = false) Integer userId) {
+        if (userIdHeader == null || userIdHeader.isBlank()) {
+            return ResponseEntity.status(403).body(Map.of("success", false, "message", "Not authenticated."));
+        }
+        int currentUserId;
+        try {
+            currentUserId = Integer.parseInt(userIdHeader);
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(403).body(Map.of("success", false, "message", "Invalid user ID."));
+        }
+
+        int targetUserId = userId != null ? userId : currentUserId;
+        if (currentUserId != targetUserId) {
+            return ResponseEntity.status(403).body(Map.of("success", false, "message", "You can only access your own profile."));
+        }
+
+        Map<String, Object> result = authService.getProfile(targetUserId);
         if (Boolean.FALSE.equals(result.get("success"))) {
             return ResponseEntity.status(404).body(result);
         }
@@ -99,13 +116,25 @@ public class AuthController {
      * Request body: { "userId": 1, "name": "...", "phone": "..." }
      */
     @PutMapping("/profile")
-    public ResponseEntity<Map<String, Object>> updateProfile(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<Map<String, Object>> updateProfile(
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
+            @RequestBody Map<String, Object> body) {
+        if (userIdHeader == null || userIdHeader.isBlank()) {
+            return ResponseEntity.status(403)
+                .body(Map.of("success", false, "message", "Not authenticated."));
+        }
         if (body == null || body.get("userId") == null) {
             return ResponseEntity.badRequest()
                 .body(Map.of("success", false, "message", "User ID is required."));
         }
         try {
+            int currentUserId = Integer.parseInt(userIdHeader);
             int userId = Integer.parseInt(body.get("userId").toString());
+            if (currentUserId != userId) {
+                return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", "You can only update your own profile."));
+            }
+
             String name = (String) body.get("name");
             String phone = (String) body.get("phone");
 

@@ -8,21 +8,78 @@
 // ============================================================
 const API_BASE = '/api';
 
+function formatPriceRange(value) {
+  const normalized = String(value ?? '$$').trim();
+  const map = {
+    '$': '₹800 - ₹1,200 for two',
+    '$$': '₹1,200 - ₹2,500 for two',
+    '$$$': '₹2,500 - ₹4,500 for two',
+    '$$$$': '₹4,500 - ₹7,500 for two'
+  };
+
+  return map[normalized] || '₹1,200 - ₹2,500 for two';
+}
+
 // ============================================================
 // SESSION MANAGEMENT
 // We store user info in localStorage (simple beginner-friendly approach)
 // ============================================================
 
 const Session = {
+  normalize(user) {
+    if (!user || typeof user !== 'object') return null;
+
+    const rawId = user.userId ?? user.user_id ?? user.id ?? user.userID;
+    const numericId = Number(rawId);
+    const safeUser = { ...user };
+
+    if (Number.isFinite(numericId) && numericId > 0) {
+      safeUser.userId = numericId;
+      safeUser.user_id = numericId;
+    } else {
+      return null;
+    }
+
+    return safeUser;
+  },
+
   /** Save user data after login/signup */
   set(user) {
-    localStorage.setItem('dinesync_user', JSON.stringify(user));
+    const normalized = this.normalize(user);
+    if (!normalized) {
+      this.clear();
+      return null;
+    }
+
+    const payload = JSON.stringify(normalized);
+    localStorage.setItem('dinesync_user', payload);
+    sessionStorage.setItem('dinesync_user', payload);
+    return normalized;
   },
 
   /** Get current logged-in user */
   get() {
-    const data = localStorage.getItem('dinesync_user');
-    return data ? JSON.parse(data) : null;
+    const candidates = [
+      localStorage.getItem('dinesync_user'),
+      sessionStorage.getItem('dinesync_user')
+    ];
+
+    for (const value of candidates) {
+      if (!value) continue;
+      try {
+        const parsed = JSON.parse(value);
+        const normalized = this.normalize(parsed);
+        if (normalized) {
+          this.set(normalized);
+          return normalized;
+        }
+      } catch (err) {
+        console.warn('Invalid stored session detected.', err);
+      }
+    }
+
+    this.clear();
+    return null;
   },
 
   /** Check if user is logged in */
@@ -39,6 +96,24 @@ const Session = {
   /** Log out */
   clear() {
     localStorage.removeItem('dinesync_user');
+    sessionStorage.removeItem('dinesync_user');
+    localStorage.clear();
+    sessionStorage.clear();
+  },
+
+  /** Redirect stale session users back to login */
+  redirectToLogin(message = 'Your session has expired. Please sign in again.') {
+    this.clear();
+    const redirect = encodeURIComponent(window.location.pathname + window.location.search);
+    const path = `/login.html?redirect=${redirect}`;
+    if (message) Toast.error(message);
+    window.location.href = path;
+  },
+
+  /** Validate current user session */
+  hasValidUser() {
+    const user = this.get();
+    return Boolean(user && Number.isFinite(Number(user.userId ?? user.user_id)));
   }
 };
 
@@ -108,8 +183,24 @@ function updateNavbar() {
     if (signupLink) signupLink.style.display = 'none';
     if (logoutBtn) logoutBtn.style.display = 'inline-flex';
     if (myResLink) myResLink.style.display = 'inline-flex';
-    if (profileLink) profileLink.style.display = 'inline-flex';
-    if (userNameEl) userNameEl.textContent = user.name.split(' ')[0];
+    if (profileLink) {
+      profileLink.style.display = 'inline-flex';
+      profileLink.classList.add('profile-badge');
+      profileLink.innerHTML = '';
+      const icon = document.createElement('span');
+      icon.className = 'nav-profile-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = '👤';
+      const label = document.createElement('span');
+      label.textContent = user.name ? user.name.split(' ')[0] : 'Profile';
+      profileLink.appendChild(icon);
+      profileLink.appendChild(label);
+    }
+    if (userNameEl) {
+      userNameEl.textContent = '';
+      userNameEl.style.display = 'none';
+      userNameEl.classList.remove('nav-user-name');
+    }
 
     if (adminLink) {
       adminLink.style.display = user.role === 'ADMIN' ? 'inline-flex' : 'none';
@@ -121,6 +212,7 @@ function updateNavbar() {
     if (logoutBtn) logoutBtn.style.display = 'none';
     if (myResLink) myResLink.style.display = 'none';
     if (profileLink) profileLink.style.display = 'none';
+    if (userNameEl) userNameEl.style.display = 'none';
     if (adminLink) adminLink.style.display = 'none';
   }
 }
@@ -171,10 +263,14 @@ const Api = {
 
     const headers = {};
     const user = Session.get();
-    if (user) headers['X-User-Id'] = String(user.userId);
+    const userId = user ? (user.userId ?? user.user_id) : null;
+    if (userId) headers['X-User-Id'] = String(userId);
 
     const response = await fetch(url.toString(), { headers });
     if (!response.ok) {
+      if (response.status === 403 || response.status === 401) {
+        Session.redirectToLogin('Your session is invalid or expired. Please log in again.');
+      }
       throw new Error(`Request failed: ${response.status}`);
     }
     return response.json();
@@ -186,13 +282,19 @@ const Api = {
   async post(endpoint, body) {
     const headers = { 'Content-Type': 'application/json' };
     const user = Session.get();
-    if (user) headers['X-User-Id'] = String(user.userId);
+    const userId = user ? (user.userId ?? user.user_id) : null;
+    if (userId) headers['X-User-Id'] = String(userId);
 
     const response = await fetch(API_BASE + endpoint, {
       method: 'POST',
       headers,
       body: JSON.stringify(body)
     });
+
+    if (!response.ok && (response.status === 403 || response.status === 401)) {
+      Session.redirectToLogin('Your session is invalid or expired. Please log in again.');
+    }
+
     return response.json();
   },
 
@@ -202,13 +304,19 @@ const Api = {
   async put(endpoint, body) {
     const headers = { 'Content-Type': 'application/json' };
     const user = Session.get();
-    if (user) headers['X-User-Id'] = String(user.userId);
+    const userId = user ? (user.userId ?? user.user_id) : null;
+    if (userId) headers['X-User-Id'] = String(userId);
 
     const response = await fetch(API_BASE + endpoint, {
       method: 'PUT',
       headers,
       body: JSON.stringify(body)
     });
+
+    if (!response.ok && (response.status === 403 || response.status === 401)) {
+      Session.redirectToLogin('Your session is invalid or expired. Please log in again.');
+    }
+
     return response.json();
   },
 
@@ -220,8 +328,12 @@ const Api = {
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
     const headers = {};
     const user = Session.get();
-    if (user) headers['X-User-Id'] = String(user.userId);
+    const userId = user ? (user.userId ?? user.user_id) : null;
+    if (userId) headers['X-User-Id'] = String(userId);
     const response = await fetch(url.toString(), { method: 'DELETE', headers });
+    if (!response.ok && (response.status === 403 || response.status === 401)) {
+      Session.redirectToLogin('Your session is invalid or expired. Please log in again.');
+    }
     return response.json();
   }
 };

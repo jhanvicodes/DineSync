@@ -200,7 +200,10 @@ function selectTable(card, tables) {
 
 async function confirmReservation() {
   const user = Session.get();
-  if (!user) {
+  const userId = user ? (user.userId ?? user.user_id ?? user.id) : null;
+
+  if (!user || !userId) {
+    Session.clear();
     Toast.error('Please log in to make a reservation.');
     setTimeout(() => window.location.href = `/login.html?redirect=/reservation.html?restaurantId=${restaurantId}`, 1500);
     return;
@@ -221,7 +224,7 @@ async function confirmReservation() {
 
   try {
     const result = await Api.post('/reservations', {
-      userId: user.userId,
+      userId: Number(userId),
       restaurantId: restaurantId,
       tableId: selectedTableId,
       date: date,
@@ -248,6 +251,16 @@ async function confirmReservation() {
       confirmBtn.textContent = 'Confirm Reservation';
     }
   } catch (err) {
+    const message = String(err?.message || '');
+    if (message.includes('violates foreign key constraint') || message.includes('reservations_user_id_fkey') || message.includes('user_id')) {
+      Session.clear();
+      Toast.error('Your session is invalid. Please log in again.');
+      setTimeout(() => {
+        window.location.href = `/login.html?redirect=/reservation.html?restaurantId=${restaurantId}`;
+      }, 1200);
+      return;
+    }
+
     Toast.error('Connection error. Please try again.');
     confirmBtn.disabled = false;
     confirmBtn.textContent = 'Confirm Reservation';

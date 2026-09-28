@@ -93,15 +93,27 @@ public class RestaurantController {
      */
     @PostMapping("/{id}/reviews")
     public ResponseEntity<Map<String, Object>> postReview(
+            @RequestHeader(value = "X-User-Id", required = false) String userIdHeader,
             @PathVariable int id, @RequestBody Map<String, Object> body) {
+        if (userIdHeader == null || userIdHeader.isBlank()) {
+            return ResponseEntity.status(403)
+                .body(Map.of("success", false, "message", "Not authenticated."));
+        }
         if (body == null || body.get("userId") == null || body.get("rating") == null) {
             return ResponseEntity.badRequest()
                 .body(Map.of("success", false, "message", "User ID and rating are required."));
         }
         try {
+            int currentUserId = Integer.parseInt(userIdHeader);
+            int requestedUserId = Integer.parseInt(body.get("userId").toString());
+            if (currentUserId != requestedUserId) {
+                return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", "You can only review as yourself."));
+            }
+
             com.dinesync.model.Review review = new com.dinesync.model.Review();
             review.setRestaurantId(id);
-            review.setUserId(Integer.parseInt(body.get("userId").toString()));
+            review.setUserId(requestedUserId);
             review.setRating(Integer.parseInt(body.get("rating").toString()));
             review.setComment(body.get("comment") != null ? body.get("comment").toString().trim() : "");
             Map<String, Object> result = restaurantService.addReview(review);

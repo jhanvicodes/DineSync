@@ -167,6 +167,10 @@ public class RestaurantDAO {
      * Delete a restaurant by ID (cascades to tables, menu, reservations).
      */
     public void delete(int id) {
+        jdbcTemplate.update("DELETE FROM reviews WHERE restaurant_id = ?", id);
+        jdbcTemplate.update("DELETE FROM reservations WHERE restaurant_id = ?", id);
+        jdbcTemplate.update("DELETE FROM menu_items WHERE restaurant_id = ?", id);
+        jdbcTemplate.update("DELETE FROM restaurant_tables WHERE restaurant_id = ?", id);
         jdbcTemplate.update("DELETE FROM restaurants WHERE restaurant_id = ?", id);
     }
 

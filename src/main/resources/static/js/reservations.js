@@ -11,7 +11,10 @@ let allUserReservations = [];
 
 async function loadUserReservations() {
   const user = Session.get();
-  if (!user) {
+  const userId = user ? (user.userId ?? user.user_id ?? user.id) : null;
+
+  if (!user || !userId) {
+    Session.clear();
     window.location.href = '/login.html?redirect=/my-reservations.html';
     return;
   }
@@ -19,7 +22,7 @@ async function loadUserReservations() {
   showLoading('reservations-container', 'Loading your reservations...');
 
   try {
-    const reservations = await Api.get(`/reservations/user/${user.userId}`);
+    const reservations = await Api.get(`/reservations/user/${Number(userId)}`);
     allUserReservations = reservations;
     renderActiveTab();
   } catch (err) {

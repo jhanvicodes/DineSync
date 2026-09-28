@@ -56,16 +56,21 @@ public class ReviewDAO {
      * Save a new review and return its generated ID.
      */
     public int save(Review review) {
-        String sql = "INSERT INTO reviews (user_id, restaurant_id, rating, comment) VALUES (?, ?, ?, ?)";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, review.getUserId());
-            ps.setInt(2, review.getRestaurantId());
-            ps.setInt(3, review.getRating());
-            ps.setString(4, review.getComment());
-            return ps;
-        }, keyHolder);
-        return keyHolder.getKey().intValue();
+        String sql = "INSERT INTO reviews (user_id, restaurant_id, rating, comment) VALUES (?, ?, ?, ?) RETURNING review_id";
+
+        Integer reviewId = jdbcTemplate.queryForObject(
+            sql,
+            Integer.class,
+            review.getUserId(),
+            review.getRestaurantId(),
+            review.getRating(),
+            review.getComment()
+        );
+
+        if (reviewId == null) {
+            throw new IllegalStateException("Review creation succeeded but no review_id was returned from the database.");
+        }
+
+        return reviewId;
     }
 }
